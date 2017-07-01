@@ -157,21 +157,20 @@ def list_zones(apiclient, args): # pylint: disable=unused-argument,too-many-loca
           " | {ssl:{fill}<{ssl_width}s}" \
           " | {ssl_expiry:{fill}<{ssl_expiry_width}s}" \
           " | {additional_domains:{fill}<{additional_domains_width}s}"
-    print(fmt.format(**merge_dicts(field_headers, widthdict), fill=" "))
-    print(fmt.format(**merge_dicts(
-        {key: "" for key, value in field_widths.items()},
-        widthdict), fill="="))
+    print(fmt.format(fill=" ", **merge_dicts(field_headers, widthdict)))
+    print(fmt.format(fill="=", **merge_dicts({key: "" for key, value in field_widths.items()},
+                                             widthdict)))
     for zonedata in data:
         cur = zonedata.copy()
         if zonedata["additional_domains"]:
             del cur["additional_domains"]
             for add_domain in zonedata["additional_domains"]:
                 cur["additional_domains"] = add_domain
-                print(fmt.format(**merge_dicts(cur, widthdict), fill=" "))
+                print(fmt.format(fill=" ", **merge_dicts(cur, widthdict)))
                 cur.update({key: "" for key, value in field_widths.items()})
         else:
             cur["additional_domains"] = ""
-            print(fmt.format(**merge_dicts(cur, widthdict), fill=" "))
+            print(fmt.format(fill=" ", **merge_dicts(cur, widthdict)))
     return 0
 
 if __name__ == "__main__":
