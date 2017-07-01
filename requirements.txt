@@ -1,3 +1,3 @@
-maxcdn~=0.0
-cryptography~=1.8
-PyYAML~=3.12
+maxcdn
+cryptography
+PyYAML
