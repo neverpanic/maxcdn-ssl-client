@@ -194,8 +194,9 @@ class SslApiClient(object):
 
         return (crt, key, bundle)
 
-    def add_certificate_for_zone(self, zone_id, crt_file, key_file, bundle_file=None):
-        # pylint: disable=too-many-locals
+    def add_certificate_for_zone(self, zone_id, crt_file, key_file,
+                                 bundle_file=None, ignore_missing_domains=False):
+        # pylint: disable=too-many-locals, too-many-arguments
         """
         Create a new SSL certificate from the given certificate, key and bundle
         file and change the pull zone identified by the given zone ID to use
@@ -209,6 +210,10 @@ class SslApiClient(object):
         :param str key_file: The filename of the private key file
         :param str bundle_file: The filename of a chain of intermediate
                                 certificates, if required.
+        :param bool ignore_missing_domains: If True, skip check verifying that
+                                            the given certificate contains all
+                                            domains configured for the given
+                                            MaxCDN zone.
         """
 
         ## Load certificate into memory
@@ -248,7 +253,7 @@ class SslApiClient(object):
         domains_in_zone = domains_in_zone.union(aux_domains)
 
         missing_domains = domains_in_zone - domains_in_crt
-        if missing_domains:
+        if missing_domains and not ignore_missing_domains:
             raise exception.LogicException(
                 "Given certificate is missing domains: {!r}".format(
                     sorted(missing_domains)))

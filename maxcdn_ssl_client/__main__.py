@@ -47,6 +47,11 @@ def main():
         "--chain",
         help="Path to a file containing the certificate chain to deploy",
         default=None)
+    parser_update.add_argument(
+        "--ignore-missing-domains",
+        help="Deploy even if domains configured on MaxCDN are missing from the certificate.",
+        action="store_true",
+        default=False)
 
     args = parser.parse_args()
 
@@ -67,7 +72,11 @@ def update_zone(apiclient, args):
     :param apiclient maxcdn_ssl_client.client.SslApiClient: MaxCDN API client
     :param args argparse.Namespace: Command line arguments
     """
-    apiclient.add_certificate_for_zone(args.zoneid, args.certificate, args.key, args.chain)
+    apiclient.add_certificate_for_zone(args.zoneid,
+                                       args.certificate,
+                                       args.key,
+                                       args.chain,
+                                       args.ignore_missing_domains)
     return 0
 
 def list_zones(apiclient, args): # pylint: disable=unused-argument,too-many-locals
