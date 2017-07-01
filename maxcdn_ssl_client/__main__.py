@@ -70,7 +70,7 @@ def update_zone(apiclient, args):
     apiclient.add_certificate_for_zone(args.zoneid, args.certificate, args.key, args.chain)
     return 0
 
-def list_zones(apiclient, args): # pylint: disable=unused-argument
+def list_zones(apiclient, args): # pylint: disable=unused-argument,too-many-locals
     """
     Print a list of all available pull zones
 
@@ -141,26 +141,37 @@ def list_zones(apiclient, args): # pylint: disable=unused-argument
 
     widthdict = {key + "_width": value for key, value in field_widths.items()}
 
+    def merge_dicts(dict1, dict2):
+        """
+        Merge two dictionaries by key and return the merged dict. This is
+        available in Python 3.5 as {**d1, **d2}, but does unfortunately not
+        work in Python 3.4.
+        """
+        newdict = dict1.copy()
+        newdict.update(dict2)
+        return newdict
+
     # Print
     fmt = "{cdn_url:{fill}<{cdn_url_width}s}" \
           " | {id:{fill}<{id_width}s}" \
           " | {ssl:{fill}<{ssl_width}s}" \
           " | {ssl_expiry:{fill}<{ssl_expiry_width}s}" \
           " | {additional_domains:{fill}<{additional_domains_width}s}"
-    print(fmt.format(**field_headers, **widthdict, fill=" "))
-    print(fmt.format(**{key: "" for key, value in field_widths.items()},
-                     **widthdict, fill="="))
+    print(fmt.format(**merge_dicts(field_headers, widthdict), fill=" "))
+    print(fmt.format(**merge_dicts(
+        {key: "" for key, value in field_widths.items()},
+        widthdict), fill="="))
     for zonedata in data:
         cur = zonedata.copy()
         if zonedata["additional_domains"]:
             del cur["additional_domains"]
             for add_domain in zonedata["additional_domains"]:
                 cur["additional_domains"] = add_domain
-                print(fmt.format(**cur, **widthdict, fill=" "))
+                print(fmt.format(**merge_dicts(cur, widthdict), fill=" "))
                 cur.update({key: "" for key, value in field_widths.items()})
         else:
             cur["additional_domains"] = ""
-            print(fmt.format(**cur, **widthdict, fill=" "))
+            print(fmt.format(**merge_dicts(cur, widthdict), fill=" "))
     return 0
 
 if __name__ == "__main__":
